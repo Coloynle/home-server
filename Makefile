@@ -38,3 +38,6 @@ restart-yunzai:
 
 restart-zhenxun:
 	docker compose -p "home-server" up -d zhenxun_bot
+
+bot-update:
+	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -e TZ=Asia/Shanghai ghcr.io/containrrr/watchtower:latest yunzai gsuid_core astrbot --run-once --cleanup
