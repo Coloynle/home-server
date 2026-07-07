@@ -1,0 +1,84 @@
+name: Build Docker Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - astrbot/**
+      - gsuid_core/**
+      - trss_yunzai/**
+      - .github/workflows/docker-build.yml
+  schedule:
+    # Daily at 04:00 Asia/Shanghai. Rebuilds pick up changed base-image tags.
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+
+env:
+  DOCKERHUB_NAMESPACE: coloynle
+  GHCR_NAMESPACE: ghcr.io/coloynle
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: astrbot
+            context: ./astrbot
+            image: astrbot
+          - name: gsuid_core
+            context: ./gsuid_core
+            image: gsuid_core
+          - name: yunzai
+            context: ./trss_yunzai
+            image: yunzai
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.DOCKERHUB_NAMESPACE }}/${{ matrix.image }}
+            ${{ env.GHCR_NAMESPACE }}/${{ matrix.image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.DOCKERHUB_NAMESPACE }}/${{ matrix.image }}:buildcache
+          cache-to: type=registry,ref=${{ env.DOCKERHUB_NAMESPACE }}/${{ matrix.image }}:buildcache,mode=max

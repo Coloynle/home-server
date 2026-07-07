@@ -1,0 +1,20 @@
+services:
+  napcat:
+    environment:
+      - NAPCAT_UID=0  # id -u
+      - NAPCAT_GID=0  # id -g
+      - MODE=astrbot
+    ports:
+      - 6099:6099
+    container_name: napcat
+    restart: always
+    image: mlikiowa/napcat-docker:latest
+    network_mode: bridge
+    volumes:
+      - ./astrbot/data:/AstrBot/data
+      - ./trss_yunzai/data:/root/Yunzai
+      - ./nonebot/data:/nonebot
+      - ./zhenxun_bot/data:/zhenxun
+      - ./napcat/config:/app/napcat/config
+      - ./napcat/plugins:/app/napcat/plugins
+      - ./napcat/ntqq:/app/.config/QQ

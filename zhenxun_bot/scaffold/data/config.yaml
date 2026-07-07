@@ -1,0 +1,6 @@
+web-ui:
+  # WebUi
+  # USERNAME: 前端管理用户名
+  # PASSWORD: 前端管理密码
+  USERNAME: __ZHENXUN_WEBUI_USERNAME__
+  PASSWORD: __ZHENXUN_WEBUI_PASSWORD__

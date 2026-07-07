@@ -1,0 +1,23 @@
+tunnel: home-server
+credentials-file: /etc/cloudflared/home-server.json
+
+ingress:
+  - hostname: jellyfin.coloynle.cn
+    service: http://jellyfin:8096
+
+  - hostname: qb.coloynle.cn
+    service: http://qbittorrent:8080
+
+  - hostname: sonarr.coloynle.cn
+    service: http://sonarr:8989
+
+  - hostname: radarr.coloynle.cn
+    service: http://radarr:7878
+
+  - hostname: bazarr.coloynle.cn
+    service: http://bazarr:6767
+
+  - hostname: jackett.coloynle.cn
+    service: http://jackett:9117
+
+  - service: http_status:404

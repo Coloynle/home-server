@@ -1,0 +1,5 @@
+data
+plugins
+*.log
+.git
+.gitignore

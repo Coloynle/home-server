@@ -1,0 +1,25 @@
+services:
+  astrbot:
+    build:
+      context: ./astrbot
+      args:
+        HTTP_PROXY: ${BUILD_HTTP_PROXY:-}
+        HTTPS_PROXY: ${BUILD_HTTPS_PROXY:-}
+
+  gsuid_core:
+    build:
+      context: ./gsuid_core
+      args:
+        HTTP_PROXY: ${BUILD_HTTP_PROXY:-}
+        HTTPS_PROXY: ${BUILD_HTTPS_PROXY:-}
+
+  yunzai:
+    build:
+      context: ./trss_yunzai
+      args:
+        HTTP_PROXY: ${BUILD_HTTP_PROXY:-}
+        HTTPS_PROXY: ${BUILD_HTTPS_PROXY:-}
+
+  zhenxun_bot:
+    build:
+      context: ./zhenxun_bot

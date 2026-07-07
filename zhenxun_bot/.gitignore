@@ -1,0 +1,7 @@
+*
+!.gitignore
+!.dockerignore
+!Dockerfile
+!start-zhenxun.sh
+!scaffold/
+!scaffold/**

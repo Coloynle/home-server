@@ -1,0 +1,74 @@
+mixed-port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+
+external-controller: 0.0.0.0:9090
+secret: "Duoduo0210."
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+
+tun:
+  enable: true
+  stack: mixed
+  auto-route: true
+  auto-detect-interface: true
+
+proxy-providers:
+  sub-1:
+    type: http
+    url: "第一个链接"
+    interval: 86400
+    path: ./providers/sub-1.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: https://www.gstatic.com/generate_204
+
+  sub-2:
+    type: http
+    url: "第二个链接"
+    interval: 86400
+    path: ./providers/sub-2.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: https://www.gstatic.com/generate_204
+
+proxy-groups:
+  - name: PROXY
+    type: select
+    proxies:
+      - AUTO
+      - DIRECT
+    use:
+      - sub-1
+      - sub-2
+
+  - name: AUTO
+    type: url-test
+    use:
+      - sub-1
+      - sub-2
+    url: https://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 50
+
+rules:
+  # GEOIP DOWNLOAD PATH https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb
+  - GEOIP,CN,DIRECT
+  - MATCH,PROXY

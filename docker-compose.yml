@@ -1,0 +1,216 @@
+services:
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    network_mode: host
+    restart: always
+    ports:
+      - '80:80'    # HTTP 访问端口
+      - '81:81'    # NPM 管理后台端口
+      - '443:443'  # HTTPS 访问端口
+    volumes:
+      - ./nginx_proxy_manager/data:/data
+      - ./nginx_proxy_manager/letsencrypt:/etc/letsencrypt
+
+  # cf穿透
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    network_mode: host
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+
+  # 看小说
+  reader:
+    image: hectorqin/reader:latest
+    container_name: reader
+    restart: always
+    network_mode: host
+    volumes:
+      - ./reader/logs:/logs
+      - ./reader/storage:/storage
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - READER_APP_USERLIMIT=50
+      - READER_APP_USERBOOKLIMIT=200
+      - READER_APP_CACHECHAPTERCONTENT=true
+      - READER_APP_SECURE=true
+      - READER_APP_SECUREKEY=Duoduo0210
+      - READER_APP_INVITECODE=109210
+
+  mihomo:
+    image: docker.io/metacubex/mihomo:Alpha
+    container_name: mihomo
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./mihomo/config:/root/.config/mihomo
+
+  metacubexd:
+    image: ghcr.io/metacubex/metacubexd:latest
+    container_name: metacubexd
+    restart: unless-stopped
+    ports:
+      - "9097:80"
+    environment:
+      - DEFAULT_BACKEND_URL=${MIHOMO_BACKEND_URL:-http://192.168.31.77:9090}
+
+  cloudsaver:
+    image: jiangrui1994/cloudsaver:latest
+    container_name: cloud-saver
+    ports:
+      - "8008:8008"
+    network_mode: host
+    volumes:
+      - ./cloudsaver/data:/app/data
+      - ./cloudsaver/config:/app/config
+    restart: unless-stopped
+
+    # DNS 服务：AdGuard Home
+  adguardhome:
+    #    image: adguard/adguardhome
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: unless-stopped
+    # 强烈建议使用 host 模式，方便识别客户端 IP 且避免 Docker 映射性能损耗
+    network_mode: host
+    volumes:
+      - ./adguardhome/work:/opt/adguardhome/work
+      - ./adguardhome/conf:/opt/adguardhome/conf
+    environment:
+      - TZ=Asia/Shanghai
+
+  napcat:
+    environment:
+      - NAPCAT_UID=0  # id -u
+      - NAPCAT_GID=0  # id -g
+      - MODE=astrbot
+    ports:
+      - 6099:6099
+    container_name: napcat
+    restart: always
+    image: mlikiowa/napcat-docker:latest
+    network_mode: host
+    volumes:
+      - ./astrbot/data:/AstrBot/data
+      - ./trss_yunzai/data:/root/Yunzai
+      - ./nonebot/data:/nonebot
+      - ./zhenxun_bot/data:/zhenxun
+      - ./napcat/config:/app/napcat/config
+      - ./napcat/plugins:/app/napcat/plugins
+      - ./napcat/ntqq:/app/.config/QQ
+
+  # AstrBot
+  astrbot:
+    image: ghcr.io/${DOCKERHUB_NAMESPACE:-coloynle}/astrbot:latest
+    container_name: astrbot
+    restart: always
+    network_mode: host
+    ports:
+      - "5000:5000"
+      - "6185:6185"
+      - "6199:6199"
+      - "6190:6190"
+    volumes:
+      - ./astrbot/data:/AstrBot/data
+    environment:
+      - TZ=Asia/Shanghai
+
+  # GSUID Core: 跨平台游戏数据查询核心
+  gsuid_core:
+    container_name: gsuid_core
+    image: ghcr.io/${DOCKERHUB_NAMESPACE:-coloynle}/gsuid_core:latest
+    restart: always
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./gsuid_core/data:/gsuid_core/data
+      - ./gsuid_core/plugins:/gsuid_core/gsuid_core/plugins
+      - gsuid_core_venv:/venv
+    network_mode: host
+
+  nonebot:
+    container_name: nonebot-plugin-webui
+    image: coloynle/nonebot-plugin-webui:latest
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./nonebot/data/webui-data:/app/.nonebot-plugin-webui
+    environment:
+      TZ: Asia/Shanghai
+      DRIVER: "~fastapi"
+      WEBUI_PATH: "/webui"
+      WEBUI_ACCESS_TOKEN: "${WEBUI_ACCESS_TOKEN:-change-me}"
+      WEBUI_STORE_URL: "https://registry.nonebot.dev/plugins.json"
+      WEBUI_STORE_TIMEOUT: "10"
+      WEBUI_AI_BASE_URL: "${WEBUI_AI_BASE_URL:-https://api.openai.com/v1}"
+      WEBUI_AI_MODEL: "${WEBUI_AI_MODEL:-gpt-4o-mini}"
+      WEBUI_AI_API_KEY: "${WEBUI_AI_API_KEY:-}"
+
+  yunzai:
+    container_name: Yunzai
+    image: ghcr.io/${DOCKERHUB_NAMESPACE:-coloynle}/yunzai:latest
+    ports:
+      - target: 2536
+        published: "2536"
+        protocol: tcp
+    privileged: true
+    restart: always
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./trss_yunzai/data:/root/Yunzai
+    environment:
+      - AUTO_UPDATE_YUNZAI=${AUTO_UPDATE_YUNZAI:-false}
+    command:
+      - sh
+      - /start
+    network_mode: host
+
+  zhenxun_bot:
+    container_name: zhenxun_bot
+    image: ${DOCKERHUB_NAMESPACE:-coloynle}/zhenxun_bot:latest
+    restart: always
+    network_mode: host
+    volumes:
+      - ./zhenxun_bot/data:/zhenxun
+    environment:
+      - TZ=Asia/Shanghai
+      - ENVIRONMENT=dev
+      - HOST=0.0.0.0
+      - PORT=19211
+      - DB_URL=sqlite:data/db/zhenxun.db
+      - CACHE_MODE=NONE
+      - ZHENXUN_WEBUI_USERNAME=${ZHENXUN_WEBUI_USERNAME:-admin}
+      - ZHENXUN_WEBUI_PASSWORD=${ZHENXUN_WEBUI_PASSWORD:-admin}
+      - ZHENXUN_SYNC_WEBUI_CREDENTIALS=${ZHENXUN_SYNC_WEBUI_CREDENTIALS:-false}
+      - AUTO_UPDATE_ZHENXUN=${AUTO_UPDATE_ZHENXUN:-false}
+      - AUTO_UPGRADE_ZHENXUN=${AUTO_UPGRADE_ZHENXUN:-false}
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - astrbot
+      - gsuid_core
+      - Yunzai
+      - zhenxun_bot
+      - --interval
+      - "${WATCHTOWER_INTERVAL:-3600}"
+      - --cleanup
+
+volumes:
+  gsuid_core_venv:

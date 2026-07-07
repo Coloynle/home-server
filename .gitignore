@@ -1,0 +1,5 @@
+.idea
+.env
+!nonebot/scaffold/.env
+!zhenxun_bot/scaffold/.env
+!zhenxun_bot/scaffold/.env.dev
