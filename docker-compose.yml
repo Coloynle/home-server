@@ -76,6 +76,22 @@ services:
       - ./cloudsaver/config:/app/config
     restart: unless-stopped
 
+  suwayomi:
+    image: ghcr.io/suwayomi/suwayomi-server:stable
+    container_name: suwayomi-server
+    volumes:
+      - ./data:/home/suwayomi/.local/share/Tachidesk
+    ports:
+      - "4567:4567"    # 左边的端口可以改，右边必须是 4567
+    network_mode: host
+    environment:
+      - TZ=Asia/Shanghai
+      # 如果需要认证，取消下面的注释并填写：
+      - AUTH_MODE=basic_auth
+      - AUTH_USERNAME=Coloynle
+      - AUTH_PASSWORD=Duoduo0210.
+    restart: unless-stopped
+
     # DNS 服务：AdGuard Home
   adguardhome:
     #    image: adguard/adguardhome
