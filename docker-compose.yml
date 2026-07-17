@@ -215,7 +215,7 @@ services:
 
   # Nextcloud All-in-One
   nextcloud-aio-mastercontainer:
-    image: ghcr.docker.coloynle.cn/nextcloud-releases/all-in-one:latest
+    image: ghcr.io/nextcloud-releases/all-in-one:latest
     container_name: nextcloud-aio-mastercontainer
     init: true
     restart: always
