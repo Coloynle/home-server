@@ -15,6 +15,15 @@ dns:
   listen: 0.0.0.0:1053
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - nextcloud-aio-apache
+    - nextcloud-aio-database
+    - nextcloud-aio-nextcloud
+    - nextcloud-aio-redis
+    - nextcloud-aio-notify-push
+    - nextcloud-aio-talk
+    - nextcloud-aio-imaginary
+    - nextcloud-aio-whiteboard
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
