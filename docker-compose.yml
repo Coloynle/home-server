@@ -226,6 +226,7 @@ services:
       APACHE_PORT: 11000
       APACHE_IP_BINDING: 127.0.0.1
       NEXTCLOUD_DATADIR: ${NEXTCLOUD_DATADIR:-/data/home-server/nextcloud_aio/data}
+      SKIP_DOMAIN_VALIDATION: true
     volumes:
       - nextcloud_aio_mastercontainer:/mnt/docker-aio-config
       - /var/run/docker.sock:/var/run/docker.sock:ro
