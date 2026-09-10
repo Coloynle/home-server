@@ -86,24 +86,27 @@ proxy-groups:
 
 sub-rules:
   auto-in:
-    # ================= 1. Steam 下载 CDN（直连） =================
-    # 优先匹配下载与更新域名，直接走本地宽带
+    # 1. Steam 游戏/客户端更新下载（直连）
     - DOMAIN-SUFFIX,steamcontent.com,DIRECT
-    - DOMAIN-SUFFIX,steamstatic.com,DIRECT
-    - DOMAIN-SUFFIX,steamuserimages-a.akamaihd.net,DIRECT
-    - DOMAIN-KEYWORD,steam-chat,DIRECT
+    - DOMAIN-SUFFIX,steamserver.net,DIRECT
+    - DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT
     - DOMAIN-KEYWORD,steamcontent,DIRECT
+    - DOMAIN-KEYWORD,steampipe,DIRECT
 
-    # ================= 2. Steam 商店/社区/API（代理） =================
-    # 商店浏览、社区访问、客服与 API 登录
-    - DOMAIN-SUFFIX,steampowered.com,PROXY
+    # 2. Steam 商店 / 社区及其静态资源（走代理）
+    - DOMAIN,store.steampowered.com,PROXY
+    - DOMAIN,checkout.steampowered.com,PROXY
+    - DOMAIN,help.steampowered.com,PROXY
     - DOMAIN-SUFFIX,steamcommunity.com,PROXY
-    - DOMAIN-SUFFIX,steamgames.com,PROXY
-    - DOMAIN-SUFFIX,steamserver.net,PROXY
-    - DOMAIN-SUFFIX,steamstat.us,PROXY
-    - DOMAIN-KEYWORD,steampowered,PROXY
+    - DOMAIN-SUFFIX,steamstatic.com,PROXY
+    - DOMAIN-SUFFIX,steamusercontent.com,PROXY
+    - DOMAIN,steamcommunity-a.akamaihd.net,PROXY
+    - DOMAIN,steamstore-a.akamaihd.net,PROXY
+    - DOMAIN,steamusercontent-a.akamaihd.net,PROXY
+    - DOMAIN,steamuserimages-a.akamaihd.net,PROXY
+    - DOMAIN,steamvideo-a.akamaihd.net,PROXY
 
-    # ================= 3. 基础/兜底规则 =================
+    # 3. 通用代理兜底：国内直连，其他流量走代理
     - GEOIP,CN,DIRECT
     - MATCH,PROXY
 
