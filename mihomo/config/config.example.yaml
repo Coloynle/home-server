@@ -69,24 +69,42 @@ proxy-providers:
       interval: 600
       url: https://www.gstatic.com/generate_204
 
+  sub-3:
+    type: http
+    url: "第三个链接"
+    interval: 86400
+    path: ./providers/sub-3.yaml
+    health-check:
+      enable: true
+      interval: 600
+      url: https://www.gstatic.com/generate_204
+
 proxy-groups:
   - name: PROXY
     type: select
     proxies:
       - AUTO
       - DIRECT
+      - AI
     use:
       - sub-1
       - sub-2
+      - sub-3
 
   - name: AUTO
     type: url-test
     use:
       - sub-1
       - sub-2
+      - sub-3
     url: https://www.gstatic.com/generate_204
     interval: 600
     tolerance: 50
+
+  - name: AI
+    type: select
+    use:
+      - sub-3
 
 sub-rules:
   auto-in:
