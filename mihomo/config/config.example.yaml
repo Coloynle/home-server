@@ -15,6 +15,7 @@ dns:
   listen: 0.0.0.0:1053
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - nextcloud-aio-apache
     - nextcloud-aio-database
@@ -24,6 +25,9 @@ dns:
     - nextcloud-aio-talk
     - nextcloud-aio-imaginary
     - nextcloud-aio-whiteboard
+    - mp.weixin.qq.com
+    - mmbiz.qpic.cn
+    - mmbiz.qlogo.cn
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
@@ -92,6 +96,13 @@ sub-rules:
     - DOMAIN-SUFFIX,steampipe.akamaized.net,DIRECT
     - DOMAIN-KEYWORD,steamcontent,DIRECT
     - DOMAIN-KEYWORD,steampipe,DIRECT
+    # Steam 中国区实际下发的第三方下载 CDN
+    - DOMAIN,dl.steam.clngaa.com,DIRECT
+    - DOMAIN,dl.steam.cyngaa.com,DIRECT
+    - DOMAIN,st.dl.eccdnx.com,DIRECT
+    - DOMAIN,xz.pphimalayanrt.com,DIRECT
+    - DOMAIN,yif.gdtstream.com,DIRECT
+    - DOMAIN,gstore.val.smogfly.com,DIRECT
 
     # 2. Steam 商店 / 社区及其静态资源（走代理）
     - DOMAIN,store.steampowered.com,PROXY
