@@ -41,6 +41,10 @@ tun:
   auto-route: true
   auto-detect-interface: true
 
+  # 让 cloudflared 进程不走 TUN 虚拟网卡，直接走物理网卡
+  bypass-tun:
+    - cloudflared
+
 listeners:
   - name: port_auto
     type: mixed
